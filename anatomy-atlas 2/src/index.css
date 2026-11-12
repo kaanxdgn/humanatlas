@@ -1,0 +1,239 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ───────── Tema değişkenleri (GSAP ile tweenlenir) ───────── */
+:root {
+  --accent: #8ab4ff;
+  --accent-2: #c7d8ff;
+  --accent-rgb: 138 180 255;
+  --accent-2-rgb: 199 216 255;
+  --bg-0: #05070d;
+  --bg-1: #0b1220;
+  --ink: #f4f7ff;
+  --ink-dim: rgba(220, 230, 255, 0.66);
+  --hairline: rgba(255, 255, 255, 0.1);
+  color-scheme: dark;
+}
+
+html {
+  background: var(--bg-0);
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  font-family: 'Inter', 'SF Pro Text', system-ui, sans-serif;
+  font-weight: 300;
+  color: var(--ink);
+  background: radial-gradient(120% 90% at 50% 18%, var(--bg-1) 0%, var(--bg-0) 70%);
+  overscroll-behavior-y: none;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+::selection {
+  background: rgb(var(--accent-rgb) / 0.35);
+  color: #fff;
+}
+
+/* Erişilebilir odak halkası */
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+  border-radius: 8px;
+}
+
+/* ───────── Lenis önerilen stiller ───────── */
+html.lenis,
+html.lenis body {
+  height: auto;
+}
+.lenis.lenis-smooth {
+  scroll-behavior: auto !important;
+}
+.lenis.lenis-smooth [data-lenis-prevent] {
+  overscroll-behavior: contain;
+}
+.lenis.lenis-stopped {
+  overflow: hidden;
+}
+.lenis.lenis-smooth iframe {
+  pointer-events: none;
+}
+
+/* Scrollbar gizle (sinematik görünüm) */
+html {
+  scrollbar-width: none;
+}
+html::-webkit-scrollbar {
+  display: none;
+}
+
+/* ───────── Bileşen sınıfları ───────── */
+@layer components {
+  .glass {
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.07), rgba(255, 255, 255, 0.025));
+    backdrop-filter: blur(24px) saturate(140%);
+    -webkit-backdrop-filter: blur(24px) saturate(140%);
+    border: 1px solid var(--hairline);
+    box-shadow: inset 0 1px 0 0 rgba(255, 255, 255, 0.08), 0 20px 60px -20px rgba(0, 0, 0, 0.6);
+  }
+
+  .glass-strong {
+    background: linear-gradient(180deg, rgba(18, 26, 44, 0.78), rgba(8, 12, 22, 0.72));
+    backdrop-filter: blur(28px) saturate(150%);
+    -webkit-backdrop-filter: blur(28px) saturate(150%);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    box-shadow: inset 0 1px 0 0 rgba(255, 255, 255, 0.1), 0 30px 80px -24px rgba(0, 0, 0, 0.8);
+  }
+
+  .eyebrow {
+    @apply font-mono text-[11px] uppercase tracking-[0.28em] text-accent;
+  }
+
+  .mono-label {
+    @apply font-mono text-[10px] uppercase tracking-[0.22em] text-white/55;
+  }
+
+  /* Yatay gradient hareketi olan metin */
+  .text-gradient-move {
+    background-image: linear-gradient(
+      90deg,
+      #ffffff 0%,
+      var(--accent) 35%,
+      var(--accent-2) 65%,
+      #ffffff 100%
+    );
+    background-size: 220% 100%;
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    animation: gradientShift 9s ease-in-out infinite alternate;
+  }
+
+  /* Satır satır maske açılışı için kap */
+  .mask-line {
+    display: block;
+    overflow: hidden;
+    padding-bottom: 0.08em;
+    margin-bottom: -0.08em;
+  }
+  .mask-line > span {
+    display: block;
+    will-change: transform;
+  }
+
+  /* Pointer olaylarını sahneye geçiren metin kapları */
+  .pe-none {
+    pointer-events: none;
+  }
+  .pe-auto {
+    pointer-events: auto;
+  }
+}
+
+/* ───────── Film grain + hologram ızgarası ───────── */
+.film-grain {
+  position: fixed;
+  inset: 0;
+  z-index: 70;
+  pointer-events: none;
+  opacity: 0.07;
+  mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  animation: grainJitter 0.9s steps(6) infinite;
+}
+
+.hologram-grid {
+  position: fixed;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  opacity: 0.35;
+  background-image:
+    linear-gradient(rgb(var(--accent-rgb) / 0.05) 1px, transparent 1px),
+    linear-gradient(90deg, rgb(var(--accent-rgb) / 0.05) 1px, transparent 1px);
+  background-size: 64px 64px;
+  mask-image: radial-gradient(70% 60% at 50% 45%, #000 0%, transparent 100%);
+  -webkit-mask-image: radial-gradient(70% 60% at 50% 45%, #000 0%, transparent 100%);
+}
+
+/* Aurora ışık küreleri (renk --accent ile tweenlenir) */
+.aurora-blob {
+  position: absolute;
+  border-radius: 9999px;
+  filter: blur(90px);
+  opacity: 0.32;
+  will-change: transform;
+}
+
+/* ───────── Keyframes ───────── */
+@keyframes gradientShift {
+  from { background-position: 0% 50%; }
+  to { background-position: 100% 50%; }
+}
+@keyframes grainJitter {
+  0% { transform: translate(0, 0); }
+  20% { transform: translate(-3%, 2%); }
+  40% { transform: translate(2%, -3%); }
+  60% { transform: translate(-2%, -1%); }
+  80% { transform: translate(3%, 3%); }
+  100% { transform: translate(0, 0); }
+}
+@keyframes ecgDraw {
+  from { stroke-dashoffset: 400; }
+  to { stroke-dashoffset: 0; }
+}
+@keyframes floatY {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-8px); }
+}
+
+/* ───────── Hareket azaltma tercihi ───────── */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+  .film-grain {
+    animation: none;
+  }
+}
+
+/* ── Organ içi gezinti etiketleri ── */
+.int-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transform: translate(10px, -50%);
+  white-space: nowrap;
+  pointer-events: none;
+}
+.int-dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 999px;
+  background: #fff;
+  box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.25), 0 0 14px rgba(255, 255, 255, 0.8);
+  animation: int-pulse 1.8s ease-in-out infinite;
+}
+.int-text {
+  padding: 3px 9px;
+  border-radius: 999px;
+  font: 500 11px/1.2 ui-monospace, SFMono-Regular, Menlo, monospace;
+  letter-spacing: 0.04em;
+  color: #fff;
+  background: rgba(8, 10, 18, 0.72);
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  backdrop-filter: blur(6px);
+}
+@keyframes int-pulse {
+  0%, 100% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(1.35); opacity: 0.7; }
+}
